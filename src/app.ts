@@ -1,10 +1,24 @@
+import express, { Request, Response } from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
-import express, {Application, Request, Response} from 'express';
+const app = express();
 
-const app: Application = express();
+app.use(helmet());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(logger("tiny"));
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, World!')
-})
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
 
 export default app;
